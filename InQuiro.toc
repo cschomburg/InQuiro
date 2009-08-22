@@ -1,0 +1,24 @@
+## Interface: 30000
+## Title: InQuiro
+## Author: Cargor
+## Version: 1.0
+## X-eMail: xconstruct@gmail.com
+## X-Credits: Aezay for his amazing Examiner
+## Notes: Advanced, yet simple inspection mod.
+
+scanner.lua
+
+layout.lua
+core.lua
+
+modules\panel_character.lua
+modules\panel_pvp.lua
+modules\panel_talents.lua
+modules\panel_achievements.lua
+
+modules\autoinspect.lua
+
+locale\enUS.lua
+locale\deDE.lua
+locale\koKR.lua
+locale\frFR.lua
