@@ -136,15 +136,15 @@ createStatTable("def"):SetPoint("TOPLEFT", 50, -80)
 createStatTable("reg"):SetPoint("TOPLEFT", 50, -180)
 createStatTable("prof"):SetPoint("TOPLEFT", 190, -180)
 
-local function update(self)
+function char:OnInspect()
 	-- Base stats
 	for i, stat in pairs(stats.base) do
-		char["Base"..i]:SetText(self.Bonuses[stat] or "0")
+		self["Base"..i]:SetText(IQ.Bonuses[stat] or "0")
 	end
 
 	-- Resistances
 	for i, stat in pairs(stats.resist) do
-		local button = char["Resist"..i]
+		local button = self["Resist"..i]
 		local bonus = IQ.Bonuses[stat]
 		button.value:SetText(bonus)
 		button:SetAlpha(bonus and 1 or 0.5)
@@ -156,7 +156,7 @@ local function update(self)
 		local nStats = stats[name]
 		for i=1, #nStats do
 			local stat = nStats[i]
-			local bonus = self.Bonuses[stat]
+			local bonus = IQ.Bonuses[stat]
 			if(bonus) then
 				table[row]:SetText("|cffaaffaa"..abbr(stat):format("|r"..bonus.."|cffaaffaa").."|r")
 				row = row+1
@@ -167,5 +167,3 @@ local function update(self)
 		end
 	end
 end
-
-IQ.Callbacks[char] = update

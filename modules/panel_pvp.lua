@@ -1,5 +1,5 @@
-local iQ = InQuiro
-local pvp = iQ:CreateTabDialog(PVP)
+local IQ = InQuiro
+local pvp = IQ:CreateTabDialog(PVP)
 
 
 --[[ ##################
@@ -19,8 +19,8 @@ pvp.Header = CreateFrame("Frame", nil, pvp)
 pvp.Header:EnableMouse(true)
 pvp.Header:SetPoint("TOPLEFT", pvp.HeaderIcon)
 pvp.Header:SetPoint("BOTTOMRIGHT", pvp.HeaderText)
-pvp.Header:SetScript("OnEnter", iQ.GTTShow)
-pvp.Header:SetScript("OnLeave", iQ.GTTHide)
+pvp.Header:SetScript("OnEnter", IQ.GTTShow)
+pvp.Header:SetScript("OnLeave", IQ.GTTHide)
 
 local kills = pvp:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 kills:SetText(KILLS_PVP)
@@ -64,7 +64,7 @@ local backdrop = {bgFile = [[Interface/Tooltips/UI-Tooltip-Background]],
 	insets = { left = 4, right = 4, top = 4, bottom = 4 }
 }
 
-for i=1, 3 do
+for i=1, MAX_ARENA_TEAMS do
 	local frame = CreateFrame("Frame", nil, pvp)
 	frame:SetBackdrop(backdrop)
 	frame:SetBackdropColor(0, 0, 0, .5)
@@ -84,12 +84,17 @@ for i=1, 3 do
 	emblem:SetPoint("CENTER", border, -5, 17)
 	emblem:SetWidth(24)
 	emblem:SetHeight(24)
-	
+
+	local name = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	name:SetPoint("TOPLEFT", banner, "TOPRIGHT", 5, -5)
+
 	frame:SetPoint("TOPLEFT", honor, "BOTTOMLEFT", 0, -20-(i-1)*90)
 	
 	frame.Banner = banner
 	frame.Border = border
 	frame.Emblem = emblem
+	frame.Name = name
+	pvp["Arena"..i] = frame
 end
 
 --[[ ##################
@@ -97,22 +102,19 @@ end
 #################### ]]
 
 local awaiting
-iQ.Callbacks[pvp] = function(self)
+function pvp:OnInspect()
 	awaiting = true
-	if(UnitIsUnit("player", self.unit)) then
-		iQ:INSPECT_HONOR_UPDATE()
+	if(UnitIsUnit("player", IQ.unit)) then
+		pvp:UpdateDisplay()
 	else
 		RequestInspectHonorData()
 	end
 end
 
-function iQ:INSPECT_HONOR_UPDATE()
-	if(not self:CheckLastUnit() or not awaiting) then return end
-	awaiting = nil
-	
-	local faction = UnitFactionGroup(self.unit)
+function pvp:UpdateDisplay()
+	local faction = UnitFactionGroup(IQ.unit)
 	local todayKills, todayHonor, yesterdayKills, yesterdayHonor, lifeKills, rank
-	if(UnitIsUnit("player", self.unit)) then
+	if(UnitIsUnit("player", IQ.unit)) then
 		todayKills, todayHonor = GetPVPSessionStats()
 		yesterdayKills, yesterdayHonor = GetPVPYesterdayStats()
 		lifeKills, rank = GetPVPLifetimeStats()
@@ -120,24 +122,47 @@ function iQ:INSPECT_HONOR_UPDATE()
 		todayKills, todayHonor, yesterdayKills, yesterdayHonor, lifeKills, rank = GetInspectHonorData()
 	end
 
-	if(rank == 0 and faction) then
-		pvp.HeaderIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-"..faction)
-		pvp.HeaderIcon:SetTexCoord(0,0.59375,0,0.59375)
-		pvp.HeaderText:SetText("-")
-	elseif(rank ~= 0) then
-		pvp.HeaderIcon:SetTexture("Interface\\PvPRankBadges\\PvPRank"..format("%.2d", rank-4))
-		pvp.HeaderIcon:SetTexCoord(0,1,0,1)
-		pvp.HeaderText:SetText(rank-4)
-	else
-		pvp.HeaderIcon:SetTexture()
-		HeaderText("")
+	for i=1, MAX_ARENA_TEAMS do
+		local frame = self["Arena"..i]
+		-- The longest API-query I've ever seen
+		local name, size, rating, played, wins, playerPlayed, playerRating
+		local bg_r, bg_g, bg_b, emb, emb_r, emb_g, emb_b, bor, bor_r, bor_g, bor_b
+		if(UnitIsUnit("player", IQ.unit)) then
+			name, size, rating, played, wins, _, _, playerPlayed, _, _, playerRating, g_r, bg_g, bg_b, emb, emb_r, emb_g, emb_b, bor, bor_r, bor_g, bor_b = GetArenaTeam(i)
+		else
+			name, size, rating, played, wins, playerPlayed, playerRating, bg_r, bg_g, bg_b, emb, emb_r, emb_g, emb_b, bor, bor_r, bor_g, bor_b = GetInspectArenaTeamData(i)
+		end
+		if(name) then
+			frame:Show()
+			frame.Name:SetText(name)
+			frame.Banner:SetTexture("Interface\\PVPFrame\\PVP-Banner-"..size)
+			frame.Banner:SetVertexColor(bg_r, bg_g, bg_b)
+			frame.Emblem:SetTexture("Interface\\PVPFrame\\Icons\\PVP-Banner-Emblem-"..emb)
+			frame.Emblem:SetVertexColor(emb_r, emb_g, emb_b)
+			frame.Border:SetTexture("Interface\\PVPFrame\\PVP-Banner-"..size.."-Border-"..bor)
+			frame.Border:SetVertexColor(bor_r, bor_g, bor_b)
+		else
+			frame:Hide()
+		end
 	end
-	
-	pvp.Header.tip = GetPVPRankInfo(rank, self.unit)
-	pvp.TodayKills:SetText(todayKills)
-	pvp.TodayHonor:SetText(todayHonor)
-	pvp.YesterdayKills:SetText(yesterdayKills)
-	pvp.YesterdayHonor:SetText(yesterdayHonor)
-	pvp.LifetimeKills:SetText(lifeKills)
+	if(rank == 0 and faction) then
+		self.HeaderIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-"..faction)
+		self.HeaderIcon:SetTexCoord(0,0.59375,0,0.59375)
+		self.HeaderText:SetText("-")
+	elseif(rank ~= 0) then
+		self.HeaderIcon:SetTexture("Interface\\PvPRankBadges\\PvPRank"..format("%.2d", rank-4))
+		self.HeaderIcon:SetTexCoord(0,1,0,1)
+		self.HeaderText:SetText(rank-4)
+	else
+		self.HeaderIcon:SetTexture()
+		self.HeaderText:SetText("")
+	end
+
+	self.Header.tip = GetPVPRankInfo(rank, self.unit)
+	self.TodayKills:SetText(todayKills)
+	self.TodayHonor:SetText(todayHonor)
+	self.YesterdayKills:SetText(yesterdayKills)
+	self.YesterdayHonor:SetText(yesterdayHonor)
+	self.LifetimeKills:SetText(lifeKills)
 end
-iQ:RegisterEvent"INSPECT_HONOR_UPDATE"
+pvp:RegisterEvent("INSPECT_HONOR_UPDATE", pvp.UpdateDisplay)

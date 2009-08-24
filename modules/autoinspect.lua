@@ -1,6 +1,4 @@
-function InQuiro:PLAYER_TARGET_CHANGED()
-	if(self:IsShown() and self.unit == "target" and UnitExists("target")) then
-		self:Inspect("target")
-	end
-end
-InQuiro:RegisterEvent("PLAYER_TARGET_CHANGED")
+local IQ = InQuiro
+IQ:RegisterModule("AutoInspect"):RegisterEvent("PLAYER_TARGET_CHANGED", function()
+	IQ:Inspect("target")
+end)

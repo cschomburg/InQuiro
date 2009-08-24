@@ -1,5 +1,5 @@
-local iQ = InQuiro
-local tal, _, name = iQ:CreateTabDialog(TALENTS, "Talents")
+local IQ = InQuiro
+local tal, _, name = IQ:CreateTabDialog(TALENTS, "Talents")
 tal:SetBackdrop({})
 
 
@@ -55,7 +55,6 @@ for i = 1, MAX_TALENT_TABS do
 	tal['Tab'..i] = tab
 	prev = tab
 end
-tal.selectedTab, tal.currentSelectedTab = 1, 1
 PanelTemplates_SetNumTabs(tal, 3)
 PanelTemplates_UpdateTabs(tal)
 
@@ -86,10 +85,10 @@ for i = 1, 30 do
 end
 
 -- Info on item frame
-iQ.TalentsInfo = iQ.ItemButtons:CreateFontString(nil, "OVERLAY")
-iQ.TalentsInfo:SetFont([[Fonts\FRIZQT__.TTF]], 14, "THINOUTLINE")
-iQ.TalentsInfo:SetPoint("TOP", iQ.Model, "TOP", 0, -2)
-iQ.TalentsInfo:SetTextColor(1, .5, 0)
+IQ.TalentsInfo = IQ.ItemButtons:CreateFontString(nil, "OVERLAY")
+IQ.TalentsInfo:SetFont([[Fonts\FRIZQT__.TTF]], 14, "THINOUTLINE")
+IQ.TalentsInfo:SetPoint("TOP", IQ.Model, "TOP", 0, -2)
+IQ.TalentsInfo:SetTextColor(1, .5, 0)
 
 
 --[[ ##################
@@ -107,7 +106,7 @@ local function UpdateTabs()
 			end
 			tab:SetText(tabName.." |cff00ff00"..pointsSpent)
 			tab:Show()
-			PanelTemplates_TabResize(tab,-18); -- WotLK: Parameter Swap
+			PanelTemplates_TabResize(tab,-18)
 			if(not text) then
 				text = pointsSpent
 			else
@@ -117,25 +116,14 @@ local function UpdateTabs()
 			tab:Hide()
 		end
 	end
-	iQ.TalentsInfo:SetText(text)
+	IQ.TalentsInfo:SetText(text)
 end
 
-function tal:updateFunction()
-	--TalentFrame_UpdateSpecInfoCache(talentSpecInfoCache, true, nil, 1);
-	UpdateTabs()
-end
+tal.updateFunction = UpdateTabs
 Tab_OnClick(tal.Tab1)
 
-local awaiting
-
-iQ.Callbacks[tal] = function(self)
-	self.TalentsInfo:SetText()
-	awaiting = true
+function tal:OnInspect()
+	IQ.TalentsInfo:SetText()
 end
 
-function iQ:INSPECT_TALENT_READY()
-	if(not self:CheckLastUnit() or not awaiting) then return end
-	awaiting = nil
-	TalentFrame_Update(tal)
-end
-iQ:RegisterEvent"INSPECT_TALENT_READY"
+tal:RegisterEvent("INSPECT_TALENT_READY", TalentFrame_Update)

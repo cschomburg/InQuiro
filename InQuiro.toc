@@ -9,6 +9,7 @@
 libs\LibStub.lua
 libs\CallbackHandler-1.0.lua
 libs\LibItemBonus-2.0\lib.xml
+libs\LibCargEvents-1.0\LibCargEvents-1.0.lua
 
 layout.lua
 core.lua

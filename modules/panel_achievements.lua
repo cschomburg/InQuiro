@@ -1,5 +1,5 @@
-local iQ = InQuiro
-local oth = iQ:CreateTabDialog(ACHIEVEMENTS)
+local IQ = InQuiro
+local oth = IQ:CreateTabDialog(ACHIEVEMENTS)
 
 local professions = { 1527, 1532, 1535, 1544, 1538, 1539, 1540, 1536, 1537, 1541, 1542 }
 local statistics = {
@@ -32,7 +32,7 @@ local function CreateAchievementButton(id, hasText)
 	frame.id = id
 	frame:EnableMouse(true)
 	frame:SetScript("OnEnter", OnEnter)
-	frame:SetScript("OnLeave", iQ.GTTHide)
+	frame:SetScript("OnLeave", IQ.GTTHide)
 	
 	local name, desc, icon
 	if(id) then
@@ -145,9 +145,7 @@ for name, id in pairs(statistics) do
 end
 
 local awaiting
-function iQ:INSPECT_ACHIEVEMENT_READY()
-	if(not awaiting) then return end
-	awaiting = nil
+oth:RegisterEvent("INSPECT_ACHIEVEMENT_READY", function(self)
 	if(AchievementFrameComparison) then AchievementFrameComparison:RegisterEvent"INSPECT_ACHIEVEMENT_READY" end
 
 	for _, frame in ipairs(achieve) do
@@ -194,11 +192,10 @@ function iQ:INSPECT_ACHIEVEMENT_READY()
 	end
 
 	ClearAchievementComparisonUnit()
-end
-iQ.Callbacks[oth] = function(self)
+end)
+
+function oth:OnInspect()
 	ClearAchievementComparisonUnit()
-	SetAchievementComparisonUnit(self.unit)
+	SetAchievementComparisonUnit(IQ.unit)
 	if(AchievementFrameComparison) then AchievementFrameComparison:UnregisterEvent"INSPECT_ACHIEVEMENT_READY" end
-	awaiting = true
 end
-iQ:RegisterEvent("INSPECT_ACHIEVEMENT_READY")

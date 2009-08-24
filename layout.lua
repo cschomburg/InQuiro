@@ -32,9 +32,9 @@ UIPanelWindows["InQuiro"] = { area = "left", pushable = 1, whileDead = 1 }
 tinsert(UISpecialFrames, "InQuiro")
 
 iQ.Slots = {
-		"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot",
-		"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot",
-		"MainHandSlot", "SecondaryHandSlot", "RangedSlot",
+	"Head", "Neck", "Shoulder", "Back", "Chest", "Shirt", "Tabard", "Wrist",
+	"Hands", "Waist", "Legs", "Feet", "Finger0", "Finger1", "Trinket0", "Trinket1",
+	"MainHand", "SecondaryHand", "Ranged",
 }
 
 
@@ -251,7 +251,7 @@ for i, slot in ipairs(iQ.Slots) do
 	button:SetScript("OnEnter",ItemSlot_OnEnter)
 	button:SetScript("OnLeave", iQ.GTTHide)
 
-	button.id, button.bgTexture = GetInventorySlotInfo(slot)
+	button.id, button.bgTexture = GetInventorySlotInfo(slot.."Slot")
 	button.slotName = slot
 
 	button.texture = _G['InQuiroItemButton'..slot..'IconTexture']
@@ -344,6 +344,8 @@ function iQ:CreateTabDialog(name, frameName)
 	
 	dialog.Tab = tab
 	tab.Dialog = dialog
+
+	self:RegisterModule(name, dialog)
 
 	return dialog, tab, frameName and "InQuiro"..frameName
 end
