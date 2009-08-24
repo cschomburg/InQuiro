@@ -1,6 +1,8 @@
 local IQ = InQuiro
 local pvp = IQ:CreateTabDialog(PVP)
 
+PLAYED_STRING = "played |cffffffff%d|r of |cffffffff%d|r    (|cffffffff%.0f%%|r)"
+WINLOSS_STRING = "win |cff00ff00%d|r - |cffff0000%d|r loss    (|cffffffff%.0f%%|r)"
 
 --[[ ##################
 	Layout
@@ -85,15 +87,41 @@ for i=1, MAX_ARENA_TEAMS do
 	emblem:SetWidth(24)
 	emblem:SetHeight(24)
 
-	local name = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	local name = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	name:SetPoint("TOPLEFT", banner, "TOPRIGHT", 5, -5)
+
+	local type = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+	type:SetPoint("TOPRIGHT", -8, -8)
+	type:SetTextColor(1, 1, 1, 0.2)
+
+	local played = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	played:SetTextColor(0.56, 0.56, 0.56)
+	played:SetPoint("TOPLEFT", name, "BOTTOMLEFT", 10, -10)
+
+	local winloss = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	winloss:SetTextColor(0.56, 0.56, 0.56)
+	winloss:SetPoint("TOPLEFT", played, "BOTTOMLEFT", 0, -10)
+
+	local rating = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+	rating:SetPoint("BOTTOMRIGHT", -8, 8)
+
+	local personal = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	personal:SetPoint("BOTTOMRIGHT", rating, "TOPRIGHT", 0, 8)
+	personal:SetTextColor(0.6, 0.8, 0.6)
 
 	frame:SetPoint("TOPLEFT", honor, "BOTTOMLEFT", 0, -20-(i-1)*90)
 	
 	frame.Banner = banner
 	frame.Border = border
 	frame.Emblem = emblem
+
 	frame.Name = name
+	frame.Type = type
+	frame.Played = played
+	frame.WinLoss = winloss
+	frame.Rating = rating
+	frame.Personal = personal
+
 	pvp["Arena"..i] = frame
 end
 
@@ -134,7 +162,14 @@ function pvp:UpdateDisplay()
 		end
 		if(name) then
 			frame:Show()
+
 			frame.Name:SetText(name)
+			frame.Type:SetText(size.."v"..size)
+			frame.Played:SetFormattedText(PLAYED_STRING, playerPlayed, played, max(0, playerPlayed/played*100))
+			frame.WinLoss:SetFormattedText(WINLOSS_STRING, wins, played-wins, max(0, wins/played*100))
+			frame.Rating:SetText(rating)
+			frame.Personal:SetText(playerRating.."p")
+
 			frame.Banner:SetTexture("Interface\\PVPFrame\\PVP-Banner-"..size)
 			frame.Banner:SetVertexColor(bg_r, bg_g, bg_b)
 			frame.Emblem:SetTexture("Interface\\PVPFrame\\Icons\\PVP-Banner-Emblem-"..emb)
