@@ -123,9 +123,7 @@ end
 function tal:updateFunction()
 	--TalentFrame_UpdateSpecInfoCache(talentSpecInfoCache, true, nil, 1);
 	UpdateTabs()
-	TalentFrame_Update(self)
 end
-tal:SetScript("OnShow", tal.UpdateFunction)
 Tab_OnClick(tal.Tab1)
 
 local awaiting
@@ -138,11 +136,6 @@ end
 function iQ:INSPECT_TALENT_READY()
 	if(not self:CheckLastUnit() or not awaiting) then return end
 	awaiting = nil
-	
-	if(self.Dialog == tal) then
-		TalentFrame_Update(tal)
-	end
-
-	UpdateTabs()
+	TalentFrame_Update(tal)
 end
 iQ:RegisterEvent"INSPECT_TALENT_READY"
