@@ -6,7 +6,9 @@ tal:SetBackdrop({})
 --[[ ##################
 	Layout
 #################### ]]
+local talentSpecInfoCache = {}
 tal.inspect = true
+tal.talentGroup = 1
 TalentFrame_Load(tal)
 local font = tal:CreateFontString(name.."TalentPointsText", nil, "GameFontNormal")
 _G[name.."TalentPointsText"] = font
@@ -34,6 +36,7 @@ local function Tab_OnClick(self)
 	PanelTemplates_SetTab(tal, self.id)
 	tal.currentSelectedTab = self.id
 	tal.pointsSpent = select(3, GetTalentTabInfo(self.id, true))
+	tal.previewPointsSpent = 0
 	TalentFrame_Update(tal)
 end
 
@@ -65,7 +68,7 @@ childFrame:SetWidth(320)
 childFrame:SetHeight(1)
 sChild:SetScrollChild(childFrame)
 
-for i = 1, 40 do
+for i = 1, MAX_NUM_TALENTS do
 	local button = CreateFrame("Button", name.."Talent"..i, childFrame, "TalentButtonTemplate")
 	button.id = i
 	button:SetScript("OnEvent", nil)
@@ -116,21 +119,20 @@ local function UpdateTabs()
 	end
 	iQ.TalentsInfo:SetText(text)
 end
-tal:SetScript("OnShow", function(self)
+
+function tal:updateFunction()
+	--TalentFrame_UpdateSpecInfoCache(talentSpecInfoCache, true, nil, 1);
 	UpdateTabs()
 	TalentFrame_Update(self)
-end)
-
+end
+tal:SetScript("OnShow", tal.UpdateFunction)
+Tab_OnClick(tal.Tab1)
 
 local awaiting
 
 iQ.Callbacks[tal] = function(self)
 	self.TalentsInfo:SetText()
-	if(UnitIsUnit("player", self.unit)) then return tal.Tab:Disable() end
-	tal.Tab:Enable()
-
 	awaiting = true
-	RequestInspectHonorData()
 end
 
 function iQ:INSPECT_TALENT_READY()

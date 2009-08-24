@@ -1,12 +1,14 @@
-## Interface: 30000
+## Interface: 30200
 ## Title: InQuiro
 ## Author: Cargor
-## Version: 1.0
+## Version: 2.0
 ## X-eMail: xconstruct@gmail.com
 ## X-Credits: Aezay for his amazing Examiner
 ## Notes: Advanced, yet simple inspection mod.
 
-scanner.lua
+libs\LibStub.lua
+libs\CallbackHandler-1.0.lua
+libs\LibItemBonus-2.0\lib.xml
 
 layout.lua
 core.lua
@@ -17,8 +19,3 @@ modules\panel_talents.lua
 modules\panel_achievements.lua
 
 modules\autoinspect.lua
-
-locale\enUS.lua
-locale\deDE.lua
-locale\koKR.lua
-locale\frFR.lua

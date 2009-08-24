@@ -2,7 +2,9 @@
 	InQuiro
 ]]
 
-GetQuestDifficultyColor = GetQuestDifficultyColor or GetDifficultyColor
+local LIB = LibStub and LibStub("LibItemBonus-2.0", true)
+
+GetQuestDifficultyColor = GetQuestDifficultyColor
 
 BINDING_HEADER_INQUIRO = "InQuiro";
 BINDING_NAME_INQUIRO_TARGET = "Inspect Target"
@@ -22,6 +24,7 @@ InQuiro:SetScript("OnEvent", function(self, event, ...)
 	self[event](self, event, ...)
 end)
 
+local dummyTable = {}
 function InQuiro:Inspect(unit)
 	ClearInspectPlayer()
 	if(not unit or not UnitExists(unit)) then unit = "player" end
@@ -42,7 +45,7 @@ function InQuiro:Inspect(unit)
 	
 	self:SetBackground(raceEng)
 	
-	realm = (realm == "") and nil
+	if(realm == "") then realm = nil end
 	race = race or UnitCreatureFamily(unit) or UnitCreatureType(unit)
 	
 	self.Title:SetText(pvpName or name)
@@ -60,7 +63,7 @@ function InQuiro:Inspect(unit)
 	else
 		additional = ""
 	end
-	
+
 	local guildText
 	if(isPlayer and guild) then
 		guildText = ("%s (%i) of <%s>"):format(rank, rankIndex, guild)
@@ -92,7 +95,7 @@ function InQuiro:Inspect(unit)
 		end
 
 		NotifyInspect(unit)
-		
+		local set_count = {}
 		for i, button in ipairs(self.Slots) do
 			button.link = GetInventoryItemLink(unit, button.id)
 			if(button.slotName ~= "TabardSlot" and button.slotName ~= "ShirtSlot" and button.link) then
@@ -103,9 +106,24 @@ function InQuiro:Inspect(unit)
 			end
 			self:UpdateButton(button)
 		end
+		self.SetCount = set_count
+
 		self.ItemLevel:SetText(iLevel)
 		local r, g, b = GetItemQualityColor(ceil(iRarity/#self.Slots))
 		self.ItemLevel:SetTextColor(r, g, b)
+
+		if(LIB) then
+			local equip = LIB:GetUnitEquipment(unit)
+			local details = LIB:BuildBonusSet(equip)
+			self.Bonuses = LIB:MergeDetails(details)
+		else
+			self.Equip = dummyTable
+			self.Bonuses = dummyTable
+		end
+		self.Resilience:SetText(self.Bonuses.CR_RESILIENCE)
+
+		self.Sets = {}
+		
 
 		for _, func in pairs(self.Callbacks) do func(self) end
 	else
@@ -114,7 +132,7 @@ function InQuiro:Inspect(unit)
 		self.AchieveButton:Hide()
 		self.ItemButtons:Hide()
 	end
-	
+
 	ShowUIPanel(self)
 end
 

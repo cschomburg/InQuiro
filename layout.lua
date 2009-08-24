@@ -191,9 +191,6 @@ model:SetScript("OnMouseDown", function(self)
 	self.startx, self.starty = GetCursorPosition()
 	if (arg1 == "LeftButton") then
 		self.isRotating = 1
-		if (IsControlKeyDown()) then
-			funcs.SetBackgroundTexture(nil)
-		end
 	elseif (arg1 == "RightButton") then
 		self.isPanning = 1
 	end
